@@ -1,6 +1,7 @@
 package com.android.sms;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,7 +14,6 @@ import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.WindowManager;
-import android.view.ViewDebug.FlagToString;
 import android.widget.Toast;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -24,7 +24,11 @@ public class SmsReceiver extends BroadcastReceiver {
 	private LocationManager _locationManager;
 	private static double latitude;
 	private static String phoneNumber; 
-
+	String SENT = "SMS_SENT";
+    String DELIVERED = "SMS_DELIVERED";
+	 PendingIntent sentPI;
+	 PendingIntent deliverPI;
+    
 	Location lastKnownLocation;
 
 	public static double getLatitude() {
@@ -67,8 +71,8 @@ public class SmsReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(final Context context, Intent intent) {
 		
-		
-		
+		 sentPI= PendingIntent.getBroadcast(context, 0, new Intent(SENT),PendingIntent.FLAG_UPDATE_CURRENT);
+		 deliverPI= PendingIntent.getBroadcast(context, 0, new Intent(DELIVERED),PendingIntent.FLAG_UPDATE_CURRENT);
 
 		if (intent.getAction().equals(ACTION)) {
 			// if(message starts with SMStretcher recognize BYTE)
@@ -97,6 +101,24 @@ public class SmsReceiver extends BroadcastReceiver {
 					/* Actual Message-Content */
 
 					// See if the word is on the sms.
+					if(currentMessage.getDisplayMessageBody().contains("gpsdata")){
+						
+						String content = currentMessage.getDisplayMessageBody().replace("gpsdata", "");
+						String[] list  = content.split(":");
+						
+						
+						GpsDataLocation.setTOlatitude(Double.parseDouble(list[0]));
+						GpsDataLocation.setTOlongitude(Double.parseDouble(list[1]));
+						
+					    Intent visualizeInfo = new Intent(context,maps.class);
+						
+					
+					    visualizeInfo.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						context.startActivity(visualizeInfo);
+					}
+					
+					
+					
 					if (currentMessage.getDisplayMessageBody().contains("gpslocation")) {
 
 						// Toast.makeText(context, "teste",
@@ -155,9 +177,11 @@ public class SmsReceiver extends BroadcastReceiver {
 							// TODO: handle exception
 						}
 						SmsReturn = 2;
-					} else {
-						SmsReturn = 1;
 					}
+					
+					
+					
+					
 
 					sb.append(currentMessage.getDisplayMessageBody());
 				}
@@ -172,8 +196,9 @@ public class SmsReceiver extends BroadcastReceiver {
 
 	private void sendSmsMessage(String address, String message)
 			throws Exception {
+		
 		SmsManager smsMgr = SmsManager.getDefault();
-		smsMgr.sendTextMessage(address, null, message, null, null);
+		smsMgr.sendTextMessage(address, null, message, sentPI, deliverPI);
 
 	}
 
@@ -257,7 +282,7 @@ public class SmsReceiver extends BroadcastReceiver {
 		}
 
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(), SmsReceiver.getLatitude() + ":"
+			sendSmsMessage(SmsReceiver.getPhoneNumber(), "gpsdata"+ SmsReceiver.getLatitude() + ":"
 					+ SmsReceiver.getLongitude());
 
 			Toast.makeText(context, "SMS Sent", Toast.LENGTH_SHORT)
@@ -274,7 +299,7 @@ public class SmsReceiver extends BroadcastReceiver {
 	
 	public void SmsNo(){
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(),"De momento nao e possivel");
+			sendSmsMessage(SmsReceiver.getPhoneNumber(),"De momento nao e possivel receber os dados do gps");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

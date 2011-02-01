@@ -56,7 +56,10 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
         
 		// Find a route
 		List<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-		 double fromLat = 38.67928, fromLon = -9.31932, toLat = 38.61994, toLon = -9.11321;
+		// double fromLat = 38.67928, fromLon = -9.31932, toLat = 38.61994, toLon = -9.11321;
+		 
+		double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
+		
 		 int latitude = (int)(fromLat*1e6);
 		 int longitude = (int)(fromLon *1e6);
 		 int tolatitude = (int)(toLat * 1e6);
