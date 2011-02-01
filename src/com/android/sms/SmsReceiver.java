@@ -13,6 +13,7 @@ import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.WindowManager;
+import android.view.ViewDebug.FlagToString;
 import android.widget.Toast;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -138,7 +139,7 @@ public class SmsReceiver extends BroadcastReceiver {
 									public void onClick(DialogInterface dialog,
 											int id) {
 										dialog.cancel();
-
+										SmsReceiver.this.SmsNo();
 									}
 								});
 						try {
@@ -181,7 +182,7 @@ public class SmsReceiver extends BroadcastReceiver {
 				1000, 20, _listener);
 	}
 
-	private void useLastKnownLocation(final LocationManager manager,
+	private String useLastKnownLocation(final LocationManager manager,
 			Context Context) {
 		lastKnownLocation = manager
 				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -197,7 +198,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			} catch (NullPointerException e) {
 				Toast.makeText(Context, "Gps turned off", Toast.LENGTH_SHORT)
 						.show();
-					
+					return null;
 			}
 
 		}
@@ -206,9 +207,10 @@ public class SmsReceiver extends BroadcastReceiver {
 			SmsReceiver.setLatitude(lastKnownLocation.getLatitude());
 			SmsReceiver.setLongitude(lastKnownLocation.getLongitude());
 		}
+		return "1";
 	}
 	
-	public void SmsYes(Context context, StringBuilder sb){
+	public String SmsYes(Context context, StringBuilder sb){
 
 		/* Show the Notification containing the Message. */
 		Toast.makeText(context, sb.toString(), Toast.LENGTH_SHORT)
@@ -225,7 +227,10 @@ public class SmsReceiver extends BroadcastReceiver {
 				.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			Toast.makeText(context, "GPS Provider not enable",
 					Toast.LENGTH_SHORT).show();
-
+			return null;
+				
+			
+			//return null;
 		} else {
 
 			_locationManager = (LocationManager) context
@@ -241,12 +246,18 @@ public class SmsReceiver extends BroadcastReceiver {
 				// buildAlertMessageNoGps();
 			}
 
-			useLastKnownLocation(_locationManager, context);
+			if(useLastKnownLocation(_locationManager, context) == null){
+				//return null;
+			
+				Intent a = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				 a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				context.startActivity(a);
+			}
 
 		}
 
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(), SmsReceiver.getLatitude() + " : "
+			sendSmsMessage(SmsReceiver.getPhoneNumber(), SmsReceiver.getLatitude() + ":"
 					+ SmsReceiver.getLongitude());
 
 			Toast.makeText(context, "SMS Sent", Toast.LENGTH_SHORT)
@@ -258,12 +269,12 @@ public class SmsReceiver extends BroadcastReceiver {
 			Log.d("DEBUG", e.toString());
 		}
 	
-
+		return null;
 	}
 	
 	public void SmsNo(){
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(),"De momento não é possiel");
+			sendSmsMessage(SmsReceiver.getPhoneNumber(),"De momento nao e possivel");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
