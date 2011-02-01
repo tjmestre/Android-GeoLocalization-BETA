@@ -299,9 +299,8 @@ public class SmsReceiver extends BroadcastReceiver {
 	
 	public void SmsNo(){
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(),"De momento nao e possivel receber os dados do gps");
+			sendSmsMessage(SmsReceiver.getPhoneNumber(), "De momento nao e possivel receber os dados do gps");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
