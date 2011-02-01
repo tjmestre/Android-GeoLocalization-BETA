@@ -66,6 +66,7 @@ public class DirectionsAPI extends ParserAbstract {
 	
 	@Override
 	protected AsyncTask getThruWaypoints(List<GeoPoint>waypoints, Mode mode, IDirectionsListener listener) {
+				
 		return new LoadDirectionsTask(waypoints).execute(mode);
 	}
 	

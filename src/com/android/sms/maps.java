@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 import com.jsambells.directions.RouteAbstract;
 import com.jsambells.directions.ParserAbstract.Mode;
 import com.jsambells.directions.RouteAbstract.RoutePathSmoothness;
@@ -38,12 +40,15 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	int minLongitude;
 	double hpadding = 0.1;
 	double vpadding = 0.2;	
+	Drawable drawable;
+	ItemOverlay itemizedOverlay;
 	private final static int MENU_DIAL = 0;
 	private final static int MENU_SHARE = 1;
 	private final static int MENU_NAVIGATE = 2;
 	private final static int MENU_COPY = 3;
 	private final static int MENU_SHOWONMAP = 4;
-	
+	List<GeoPoint> waypoints;
+	List<Overlay> mapOverlays;
 	
     /** Called when the activity is first created. */
     @Override
@@ -54,11 +59,16 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
         map = (MapView)findViewById(R.id.main);
      
         
+        mapOverlays = map.getOverlays();
+        
+        drawable = this.getResources().getDrawable(R.drawable.icon);
+        itemizedOverlay = new ItemOverlay(drawable);
+        
 		// Find a route
-		List<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-		// double fromLat = 38.67928, fromLon = -9.31932, toLat = 38.61994, toLon = -9.11321;
+		waypoints = new ArrayList<GeoPoint>();
+		 double fromLat = 38.67928, fromLon = -9.31932, toLat = 38.61994, toLon = -9.11321;
 		 
-		double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
+		//double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
 		
 		 int latitude = (int)(fromLat*1e6);
 		 int longitude = (int)(fromLon *1e6);
@@ -66,7 +76,16 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		 int toLongetitude = (int)(toLon * 1e6);
     	// Lets go on a tower tour!
 		waypoints.add(new GeoPoint(latitude,longitude)); // Inicio
-		waypoints.add(new GeoPoint(tolatitude,toLongetitude)); // Fim
+		
+		OverlayItem overlayitem = new OverlayItem(new GeoPoint(latitude,longitude), "", "");
+		itemizedOverlay.addOverlay(overlayitem);
+		
+		
+		waypoints.add(new GeoPoint(tolatitude,toLongetitude));
+		OverlayItem overlayitem2 = new OverlayItem(new GeoPoint(tolatitude,toLongetitude), "", "");
+		itemizedOverlay.addOverlay(overlayitem2);
+		 mapOverlays.add(itemizedOverlay);
+		// Fim
 		//waypoints.add(new GeoPoint(37802341,-122405811)); // Coit Tower
 		
 		DirectionsAPI directions = new DirectionsAPI();
@@ -81,9 +100,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		
 		this.setMapBoundsToPois(waypoints, hpadding, vpadding);
 		
-		
-		
-		
+	
 		
 		/*for (GeoPoint item : waypoints) {
             int lat = item.getLatitudeE6(); 
@@ -122,7 +139,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, MENU_NAVIGATE,0,"Percurso");     
+        menu.add(0, MENU_NAVIGATE,0,"Percurso"); 
     	return true;
     }
 	
@@ -143,7 +160,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	        	Intent i = new Intent(getApplicationContext(), InstructionsList.class);
 	            startActivity(i);
 	        	break;
-        }
+	        }
         return true;
     }
 	
@@ -156,7 +173,6 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	/* IDirectionsListener */
     
 	public void onDirectionsAvailable(RouteAbstract route, Mode mode) {
-		// TODO Auto-generated method stub
 		// Add it to a map
 		
 		// Add a directions overlay to the map.
