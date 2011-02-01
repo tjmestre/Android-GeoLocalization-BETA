@@ -22,6 +22,7 @@ public class SmsReceiver extends BroadcastReceiver {
 	private static int SmsReturn = 1;
 	private LocationManager _locationManager;
 	private static double latitude;
+	private static String phoneNumber; 
 
 	Location lastKnownLocation;
 
@@ -43,6 +44,15 @@ public class SmsReceiver extends BroadcastReceiver {
 
 	private static double longitude;
 	private final LocationListener _listener = new LocationListenerImpl(this);
+	
+	public static void setPhoneNumber(String phoneNumber) {
+		SmsReceiver.phoneNumber = phoneNumber;
+	}
+
+	public static String getPhoneNumber() {
+		return phoneNumber;
+	}
+	
 
 	
 
@@ -80,13 +90,13 @@ public class SmsReceiver extends BroadcastReceiver {
 					sb.append("SMS Received From: ");
 					/* Sender-Number */
 					sb.append(currentMessage.getDisplayOriginatingAddress());
-
+						
+					SmsReceiver.setPhoneNumber(currentMessage.getDisplayOriginatingAddress());
 					sb.append("\nMessage : ");
 					/* Actual Message-Content */
 
 					// See if the word is on the sms.
-					if (currentMessage.getDisplayMessageBody().contains(
-							"gpslocation")) {
+					if (currentMessage.getDisplayMessageBody().contains("gpslocation")) {
 
 						// Toast.makeText(context, "teste",
 						// Toast.LENGTH_SHORT).show();
@@ -236,7 +246,7 @@ public class SmsReceiver extends BroadcastReceiver {
 		}
 
 		try {
-			sendSmsMessage("5554", SmsReceiver.getLatitude() + " : "
+			sendSmsMessage(SmsReceiver.getPhoneNumber(), SmsReceiver.getLatitude() + " : "
 					+ SmsReceiver.getLongitude());
 
 			Toast.makeText(context, "SMS Sent", Toast.LENGTH_SHORT)
@@ -253,11 +263,13 @@ public class SmsReceiver extends BroadcastReceiver {
 	
 	public void SmsNo(){
 		try {
-			sendSmsMessage("5554","Nao ha nada para ninguem");
+			sendSmsMessage(SmsReceiver.getPhoneNumber(),"De momento não é possiel");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
+	
 
 }
