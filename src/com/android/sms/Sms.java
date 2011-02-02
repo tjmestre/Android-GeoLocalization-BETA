@@ -61,13 +61,16 @@ public class Sms extends Activity {
 				if(phonen.length() > 0 && phoneMessage.length() > 0){
 					sendSms(phonen,phoneMessage);
 				}else{
-				//	Toast.makeText(getApplicationContext(), "Insira o numero e a mensagem", Toast.LENGTH_LONG).show();
-					  Intent i = new Intent(Sms.this, com.android.sms.maps.class);
-			           startActivity(i);
+					Toast.makeText(getApplicationContext(), "Insira o numero ", Toast.LENGTH_LONG).show();
+					 // Intent i = new Intent(Sms.this, com.android.sms.maps.class);
+			           //startActivity(i);
 				}
 				
 			}
 		});
+        
+        
+        //Query à base de dados dos contactos
         
         ContentResolver content = getContentResolver();
         Cursor cursor = content.query(ContactsContract.Contacts.CONTENT_URI,
