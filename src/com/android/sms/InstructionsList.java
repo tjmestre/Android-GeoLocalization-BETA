@@ -51,15 +51,16 @@ public class InstructionsList extends Activity {
 			for (DirectionsAPIStep p : allPharm) {
 				HashMap<String, String> pharmacy = new HashMap<String, String>();
 			//	pharmacy.put("name", p.getDistance());
-				
+				pharmacy.put("distance", p.getDistance());
+				pharmacy.put("duration", p.getDuration());
 				pharmacy.put("instructions", Html.fromHtml(p.getInstructions()).toString());
 				//Log.d("dfedf",p.getInstructions());
 				pharmacies.add(pharmacy);
 			}
 
 			
-			String[] from = new String[] {"instructions"};
-			int[] to = new int[] { R.id.txtTexto};
+			String[] from = new String[] {"instructions","duration","distance"};
+			int[] to = new int[] { R.id.txtTexto, R.id.tvDuracao,R.id.tvDistancia};
 			
 			  SimpleAdapter adapter = new SimpleAdapter(this, pharmacies, R.layout.list_row, from, to);
 	

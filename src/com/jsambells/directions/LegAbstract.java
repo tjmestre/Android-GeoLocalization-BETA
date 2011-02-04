@@ -57,6 +57,14 @@ public abstract class LegAbstract
 	public String getDuration() {
 		return this.duration;
 	}
+	
+	public void setDuration(String duration){
+		this.duration = duration;
+	}
+	
+	public void setDistance(String distance){
+		this.distance = distance;
+	}
 
 	public void setEndAddress(String addr) {
 		this.endAddress = addr;

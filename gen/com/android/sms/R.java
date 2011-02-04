@@ -29,8 +29,8 @@ public final class R {
         public static final int main=0x7f050013;
         public static final int mapview=0x7f050012;
         public static final int tvDistancia=0x7f05000e;
+        public static final int tvDuracao=0x7f05000c;
         public static final int tvLocation=0x7f050003;
-        public static final int tvMorada=0x7f05000c;
         public static final int txtMessage=0x7f050010;
         public static final int txtPhoneNo=0x7f05000f;
         public static final int txtTexto=0x7f050009;

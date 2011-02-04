@@ -243,9 +243,9 @@ public class DirectionsAPI extends ParserAbstract {
 						stepList.add(directionsAPIStep);
 					}
 				} else if (node.getNodeName().equals(ELEMENT_DURATION)) {
-					// TODO parse value/text pairs.
+					leg.setDuration(getDurations(node));
 				} else if (node.getNodeName().equals(ELEMENT_DISTANCE)) {
-					// TODO parse value/text pairs.
+					leg.setDistance(getDurations(node));
 				} else if (node.getNodeName().equals(ELEMENT_START_LOCATION)) {
 					leg.setStartLocation(this.parseWaypoint(node));
 				} else if (node.getNodeName().equals(ELEMENT_END_LOCATION)) {
@@ -288,9 +288,9 @@ public class DirectionsAPI extends ParserAbstract {
 				} else if (node.getNodeName().equals(ELEMENT_END_LOCATION)) {
 					step.setEndLocation(parseWaypoint(node));					
 				} else if (node.getNodeName().equals(ELEMENT_DISTANCE)) {
-					// TODO parse value/text pairs.
+					step.setDistance(getDurations(node));
 				} else if (node.getNodeName().equals(ELEMENT_DURATION)) {
-					// TODO parse value/text pairs.
+					step.setDuration(getDurations(node));
 				} else if (node.getNodeName().equals("polyline")) {
 					step.setGeoPoints(parsePoly(node));
 				} else if (node.getNodeName().equals("travel_mode")) {
@@ -330,6 +330,21 @@ public class DirectionsAPI extends ParserAbstract {
 			Log.d(TAG, "Parsed Waypoint:" + wp);
 
 			return wp;
+		}
+		
+		private String getDurations(Node item){
+			String text = "";
+			
+			NodeList children = item.getChildNodes();
+			
+			for(int i = 0; i < children.getLength(); i++){
+				Node node = children.item(i);
+				if(node.getNodeName().equals("text")){
+					text = node.getFirstChild().getNodeValue();
+				}
+			}
+			
+			return text;
 		}
 		
 		private List<GeoPoint> parsePoly(Node item) {
