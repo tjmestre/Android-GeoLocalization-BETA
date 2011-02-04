@@ -48,10 +48,12 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Xml;
 
+import com.android.sms.maps;
 import com.google.android.maps.GeoPoint;
 import com.jsambells.directions.ParserAbstract;
 import com.jsambells.directions.RouteAbstract;
@@ -65,15 +67,16 @@ public class DirectionsAPI extends ParserAbstract {
 	 teste t = new teste();
 	
 	@Override
-	protected AsyncTask getThruWaypoints(List<GeoPoint>waypoints, Mode mode, IDirectionsListener listener) {
+	protected AsyncTask getThruWaypoints(List<GeoPoint>waypoints, Mode mode, IDirectionsListener listener, maps context) {
 				
-		return new LoadDirectionsTask(waypoints).execute(mode);
+		return new LoadDirectionsTask(context ,waypoints).execute(mode);
 	}
 	
 
 	public class LoadDirectionsTask extends AsyncTask<Mode, Void, DirectionsAPIRoute> {
 		
 	//	teste t = new teste;
+		ProgressDialog dialog;
 		static final String TAG = "LoadDirectionsTask";
 		private int con = 2;
 		public List<DirectionsAPIStep> directions;
@@ -110,10 +113,23 @@ public class DirectionsAPI extends ParserAbstract {
 		
 		private List<GeoPoint> waypoints;
 		private GeoPoint endPoint;
+		private maps task = null;
 
-		public LoadDirectionsTask(List<GeoPoint>waypoints) {
+		public LoadDirectionsTask(maps context,List<GeoPoint>waypoints) {
 			this.waypoints = waypoints;
+			this.task = context;
 		}
+		
+		@Override
+			protected void onPreExecute() {
+				// TODO Auto-generated method stub
+				super.onPreExecute();
+				
+				dialog = new ProgressDialog(task);
+				dialog.setTitle("Percurso de A para B");
+				dialog.setMessage("Loading Percurso ...");
+				dialog.show();
+			}
 
 		@Override
 		protected DirectionsAPIRoute doInBackground(Mode... params) {
@@ -400,6 +416,10 @@ public class DirectionsAPI extends ParserAbstract {
 				DirectionsAPI.this.onDirectionsNotAvailable();
 			} else {
 				DirectionsAPI.this.onDirectionsAvailable((RouteAbstract)directionsAPIRoute);
+			}
+			
+			if(dialog.isShowing()){
+				dialog.dismiss();
 			}
 		}
 	}

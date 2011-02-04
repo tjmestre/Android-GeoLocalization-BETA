@@ -93,6 +93,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 			waypoints, 
 			DirectionsAPI.Mode.DRIVING,
 			
+			this,
 			this
 		);
 		

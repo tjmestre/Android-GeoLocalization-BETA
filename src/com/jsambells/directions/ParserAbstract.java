@@ -30,6 +30,7 @@ import java.util.List;
 
 import android.os.AsyncTask;
 
+import com.android.sms.maps;
 import com.google.android.maps.GeoPoint;
 import com.jsambells.directions.google.DirectionsAPIStep;
 
@@ -66,7 +67,7 @@ public abstract class ParserAbstract
 	 * @param mode The driving mode, either driving or walking.
 	 * @param listener The object to be notified when the directions are available. It can be null.
 	 */
-	public AsyncTask getDirectionsThruWaypoints(List<GeoPoint> waypoints, Mode mode, IDirectionsListener listener)
+	public AsyncTask getDirectionsThruWaypoints(List<GeoPoint> waypoints, Mode mode, IDirectionsListener listener,maps m)
 	{
 		if ((waypoints == null) || (waypoints.size() < 2) || (mode == null)) {
 			throw new IllegalArgumentException ("waypoints must be > 1 or mode arguments can't be null");
@@ -75,7 +76,7 @@ public abstract class ParserAbstract
 		this.mode = mode;
 		this.listener = listener;
 		
-		return getThruWaypoints(waypoints, mode, listener);
+		return getThruWaypoints(waypoints, mode, listener, m);
 	}
 	
 	/**
@@ -87,7 +88,7 @@ public abstract class ParserAbstract
 	 * @param mode The driving mode, either driving or walking.
 	 * @param listener The object to be notified when the directions are available. It can be null.
 	 */
-	protected abstract AsyncTask getThruWaypoints(List<GeoPoint>waypoints, Mode mode, IDirectionsListener listener);
+	protected abstract AsyncTask getThruWaypoints(List<GeoPoint>waypoints, Mode mode, IDirectionsListener listener, maps context);
 	
 	protected void onDirectionsAvailable (RouteAbstract routeAbstract)
 	{
