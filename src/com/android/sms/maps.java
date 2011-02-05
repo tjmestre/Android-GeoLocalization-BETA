@@ -58,6 +58,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
         
         map = (MapView)findViewById(R.id.main);
      
+        map.setBuiltInZoomControls(true);
         
         mapOverlays = map.getOverlays();
         
@@ -86,7 +87,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		itemizedOverlay.addOverlay(overlayitem2);
 		 mapOverlays.add(itemizedOverlay);
 		// Fim
-		//waypoints.add(new GeoPoint(37802341,-122405811)); // Coit Tower
+		//waypoints.add(new GeoPoint(37802341,-122405811));
 		
 		DirectionsAPI directions = new DirectionsAPI();
 		directions.getDirectionsThruWaypoints(

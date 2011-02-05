@@ -121,15 +121,15 @@ public class DirectionsAPI extends ParserAbstract {
 		}
 		
 		@Override
-			protected void onPreExecute() {
-				// TODO Auto-generated method stub
-				super.onPreExecute();
-				
-				dialog = new ProgressDialog(task);
-				dialog.setTitle("Percurso de A para B");
-				dialog.setMessage("Loading Percurso ...");
-				dialog.show();
-			}
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			
+			dialog = new ProgressDialog(task);
+			dialog.setTitle("Percurso de A para B");
+			dialog.setMessage("Loading Percurso ...");
+			dialog.show();
+		}
 
 		@Override
 		protected DirectionsAPIRoute doInBackground(Mode... params) {

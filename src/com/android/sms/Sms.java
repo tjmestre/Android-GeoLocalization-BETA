@@ -86,7 +86,9 @@ public class Sms extends Activity {
         textView.setThreshold(1);
         textView.setAdapter(adapter);
         
+       teste ip = new teste();
        
+      
         
     }
     
