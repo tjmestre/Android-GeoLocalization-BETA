@@ -313,8 +313,8 @@ public class DirectionsAPI extends ParserAbstract {
 					// TODO parse travel mode.
 				} else if (node.getNodeName().equals(ELEMENT_HTML)) {
 					step.setInstructions(node.getFirstChild().getNodeValue().toString());
-					
 				}
+				
 				stepList.add(step);
 		
 				

@@ -44,6 +44,7 @@ public abstract class StepAbstract
 	String distance, duration;
 	int size;
 	String result;
+	String endAddress;
 	List<GeoPoint> polyline;
 	int error = 2;
 	
@@ -68,6 +69,14 @@ public abstract class StepAbstract
 	public String getDuration() {
 		return this.duration;
 	}
+	
+	public void setEndAddress(String addr) {
+		this.endAddress = addr;
+	}
+	public String getEndAddress() {
+		return this.endAddress;
+	}
+
 	
 
 	public void setGeoPoints(List<GeoPoint> poly) {

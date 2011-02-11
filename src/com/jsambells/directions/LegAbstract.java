@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.util.Log;
+
 import com.google.android.maps.GeoPoint;
 import com.jsambells.directions.RouteAbstract.RoutePathSmoothness;
 import com.jsambells.directions.google.DirectionsAPIWaypoint;
@@ -41,7 +43,9 @@ public abstract class LegAbstract
 {
 	List<StepAbstract> steps;
 	DirectionsAPIWaypoint startLocation, endLocation;
-	String startAddress, endAddress, distance, duration;
+	String startAddress;
+	static String endAddress;
+	String distance, duration;
 	
 	public void setSteps(List steps) {
 		this.steps = steps;
@@ -66,11 +70,12 @@ public abstract class LegAbstract
 		this.distance = distance;
 	}
 
-	public void setEndAddress(String addr) {
-		this.endAddress = addr;
+	public static void setEndAddress(String addr) {
+		endAddress = addr;
+		Log.d("AKKKKKKKIIIIIIII",addr);
 	}
-	public String getEndAddress() {
-		return this.endAddress;
+	public static String getEndAddress() {
+		return endAddress;
 	}
 
 	public void setEndLocation(DirectionsAPIWaypoint wp) {
