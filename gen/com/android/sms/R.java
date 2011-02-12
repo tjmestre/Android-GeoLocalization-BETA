@@ -25,8 +25,7 @@ public final class R {
         public static final int btnSendSMS=0x7f05000f;
         public static final int ivStatus=0x7f050006;
         public static final int listview=0x7f050003;
-        public static final int main=0x7f050011;
-        public static final int mapview=0x7f050010;
+        public static final int main=0x7f050010;
         public static final int tvDistancia=0x7f05000d;
         public static final int tvDuracao=0x7f05000b;
         public static final int tvLocation=0x7f050002;
@@ -37,8 +36,7 @@ public final class R {
         public static final int list_item=0x7f030000;
         public static final int list_row=0x7f030001;
         public static final int main=0x7f030002;
-        public static final int map=0x7f030003;
-        public static final int maps=0x7f030004;
+        public static final int maps=0x7f030003;
     }
     public static final class string {
         public static final int app_name=0x7f040001;

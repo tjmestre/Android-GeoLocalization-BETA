@@ -1,22 +1,26 @@
 package com.android.sms;
 
+import com.google.android.maps.GeoPoint;
+
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-public class SmsReceiver extends BroadcastReceiver {
+public class SmsReceiver extends BroadcastReceiver implements OnPositionChangeListener {
 
 	/** TAG used for Debug-Logging */
 	private static final String LOG_TAG = "MySmsReceiver";
@@ -28,7 +32,7 @@ public class SmsReceiver extends BroadcastReceiver {
     String DELIVERED = "SMS_DELIVERED";
 	 PendingIntent sentPI;
 	 PendingIntent deliverPI;
-    
+
 	Location lastKnownLocation;
 
 	public static double getLatitude() {
@@ -59,7 +63,57 @@ public class SmsReceiver extends BroadcastReceiver {
 	}
 	
 
-	
+	public void checkLocation(Context context){
+    	
+    	
+		_locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        
+        
+        //Var procurar qual é que é o melhor provider de Network se Gps
+        Criteria locationCritera = new Criteria();
+        locationCritera.setAccuracy(Criteria.ACCURACY_FINE);
+        locationCritera.setAltitudeRequired(false);
+        locationCritera.setBearingRequired(false);
+        locationCritera.setCostAllowed(true);
+        locationCritera.setPowerRequirement(Criteria.NO_REQUIREMENT);
+
+        String providerName = _locationManager.getBestProvider(locationCritera, true);
+
+        if (providerName != null && _locationManager.isProviderEnabled(providerName)) {
+            Log.d("adf","ENABLE PROVIDER");
+            _locationManager.requestLocationUpdates(providerName, 20000, 100, networkLocationListener);
+            
+            
+        	//GpsDataLocation.setTOlatitude(_locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+            //GpsDataLocation.setTOlongitude(_locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());            		
+            try{
+            	
+            	if(_locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) != null){
+		            SmsReceiver.setLatitude(_locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude());
+		            SmsReceiver.setLongitude(_locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude());
+            	}else if(_locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!= null){
+            		SmsReceiver.setLatitude(_locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+		            SmsReceiver.setLongitude(_locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());            		
+            	}
+            }catch (Exception e) {
+				// TODO: handle exception
+			}
+            
+            
+            if(_locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) == null && _locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) == null ) {
+            	Intent a = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				 a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				context.startActivity(a);
+            }
+        
+        } else {
+            // Provider not enabled, prompt user to enable it
+            Toast.makeText(context.getApplicationContext(), "NOT" ,Toast.LENGTH_LONG).show();
+            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            context.startActivity(myIntent);
+        }
+    	
+    }
 
 	/**
 	 * The Action fired by the Android-System when a SMS was received. We are
@@ -193,6 +247,8 @@ public class SmsReceiver extends BroadcastReceiver {
 
 
 	}
+	
+	
 
 	private void sendSmsMessage(String address, String message)
 			throws Exception {
@@ -202,38 +258,7 @@ public class SmsReceiver extends BroadcastReceiver {
 
 	}
 
-	private void registerLocationListener() {
-		_locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-				1000, 20, _listener);
-	}
-
-	private String useLastKnownLocation(final LocationManager manager,
-			Context Context) {
-		lastKnownLocation = manager
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-		if (lastKnownLocation == null) {
-			// lastKnownLocation = manager.getLastKnownLocation(
-			// LocationManager.NETWORK_PROVIDER );
-
-			try {
-				SmsReceiver.setLatitude(lastKnownLocation.getLatitude());
-				SmsReceiver.setLongitude(lastKnownLocation.getLongitude());
-
-			} catch (NullPointerException e) {
-				Toast.makeText(Context, "Gps turned off", Toast.LENGTH_SHORT)
-						.show();
-					return null;
-			}
-
-		}
-		if (lastKnownLocation != null) {
-			// latitude = lastKnownLocation.getLatitude();
-			SmsReceiver.setLatitude(lastKnownLocation.getLatitude());
-			SmsReceiver.setLongitude(lastKnownLocation.getLongitude());
-		}
-		return "1";
-	}
+	
 	
 	public String SmsYes(Context context, StringBuilder sb){
 
@@ -246,44 +271,18 @@ public class SmsReceiver extends BroadcastReceiver {
 
 		// Location loc =
 		// _locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		_locationManager = (LocationManager) context
-				.getSystemService(Context.LOCATION_SERVICE);
-		if (!_locationManager
-				.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			Toast.makeText(context, "GPS Provider not enable",
-					Toast.LENGTH_SHORT).show();
-			return null;
-				
+		
+		
+		checkLocation(context);
+
 			
-			//return null;
-		} else {
-
-			_locationManager = (LocationManager) context
-					.getSystemService(Context.LOCATION_SERVICE);
-			// Location loc =
-			// _locationManager.getLastKnownLocation("gps");
-			_locationManager.requestLocationUpdates(
-					LocationManager.GPS_PROVIDER, 1000, 20, _listener);
-
-			registerLocationListener();
-
-			if (!_locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-				// buildAlertMessageNoGps();
-			}
-
-			if(useLastKnownLocation(_locationManager, context) == null){
-				//return null;
-			
-				Intent a = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				 a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(a);
-			}
-
-		}
+		Log.d("LATITUDE", Double.toString(SmsReceiver.getLatitude()));
+		Log.d("Longitude", Double.toString(SmsReceiver.getLongitude()));
+		
 
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(), "gpsdata"+ SmsReceiver.getLatitude() + ":"
-					+ SmsReceiver.getLongitude());
+			sendSmsMessage(SmsReceiver.getPhoneNumber(), "gpsdata"+ GpsDataLocation.getTOlatitude() + ":"
+					+ GpsDataLocation.getTOlongitude());
 
 			Toast.makeText(context, "SMS Sent", Toast.LENGTH_SHORT)
 					.show();
@@ -305,6 +304,38 @@ public class SmsReceiver extends BroadcastReceiver {
 		}
 	}
 
+	
+	private final LocationListener networkLocationListener = new LocationListener() {
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+         
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+         
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+        
+
+        }
+
+    };
+
+	@Override
+	public void onLocationChange(GeoPoint currentPos, float accuracy) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

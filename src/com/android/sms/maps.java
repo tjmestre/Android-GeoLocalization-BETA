@@ -5,9 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -17,18 +16,11 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Handler.Callback;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,8 +52,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	private final static int MENU_WIFI_GPS= 3;
 	List<GeoPoint> waypoints;
 	List<Overlay> mapOverlays;
-	private boolean hadFirstFix;
-	private LocationManager locationManager;
+
 	TextView txt;
     /** Called when the activity is first created. */
     @Override
@@ -82,36 +73,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
         drawable = this.getResources().getDrawable(R.drawable.icon);
         itemizedOverlay = new ItemOverlay(drawable);
         
-        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        
-        Criteria locationCritera = new Criteria();
-        locationCritera.setAccuracy(Criteria.ACCURACY_COARSE);
-        locationCritera.setAltitudeRequired(false);
-        locationCritera.setBearingRequired(false);
-        locationCritera.setCostAllowed(true);
-        locationCritera.setPowerRequirement(Criteria.NO_REQUIREMENT);
-
-        String providerName = locationManager.getBestProvider(locationCritera, true);
-
-        if (providerName != null && locationManager.isProviderEnabled(providerName)) {
-            Log.d("adf","ENABLE PROVIDER");
-            locationManager.requestLocationUpdates(providerName, 20000, 100, networkLocationListener);
-            
-            try{
-            GpsDataLocation.setFROMlatitude(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude());
-            GpsDataLocation.setFROMlongitude(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude());
-            
-            }catch (Exception e) {
-				// TODO: handle exception
-			}
-            
-        
-        } else {
-            // Provider not enabled, prompt user to enable it
-            Toast.makeText(getApplicationContext(), "NOT" ,Toast.LENGTH_LONG).show();
-            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(myIntent);
-        }
+        checkLocation();
         
 		// Find a route
 		waypoints = new ArrayList<GeoPoint>();
@@ -119,14 +81,14 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		 
 		//double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
 		
-		// int latitude = (int)(fromLat*1e6);
-		// int longitude = (int)(fromLon *1e6);
+		 int latitude = (int)(fromLat*1e6);
+		 int longitude = (int)(fromLon *1e6);
 		 
-		 int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
-		 int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
+		// int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
+		// int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
 		 int tolatitude = (int)(toLat * 1e6);
 		 int toLongetitude = (int)(toLon * 1e6);
-    	// Lets go on a tower tour!
+    
 		waypoints.add(new GeoPoint(latitude,longitude)); // Inicio
 		
 		OverlayItem overlayitem = new OverlayItem(new GeoPoint(latitude,longitude), "", "");
@@ -190,18 +152,64 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	/* MapActivity */
     
     
+    public void checkLocation(){
+    	
+    	
+    	LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        
+        
+        //Var procurar qual é que é o melhor provider de Network se Gps
+        Criteria locationCritera = new Criteria();
+        locationCritera.setAccuracy(Criteria.ACCURACY_FINE);
+        locationCritera.setAltitudeRequired(false);
+        locationCritera.setBearingRequired(false);
+        locationCritera.setCostAllowed(true);
+        locationCritera.setPowerRequirement(Criteria.NO_REQUIREMENT);
+
+        String providerName = locationManager.getBestProvider(locationCritera, true);
+
+        if (providerName != null && locationManager.isProviderEnabled(providerName)) {
+            Log.d("adf","ENABLE PROVIDER");
+            locationManager.requestLocationUpdates(providerName, 20000, 100, networkLocationListener);
+            
+            try{
+            	
+            	if(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) != null){
+		            GpsDataLocation.setFROMlatitude(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude());
+		            GpsDataLocation.setFROMlongitude(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude());
+            	}else if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!= null){
+            		GpsDataLocation.setFROMlatitude(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude());
+		            GpsDataLocation.setFROMlongitude(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude());            		
+            	}
+            }catch (Exception e) {
+				// TODO: handle exception
+			}
+            
+            
+            if(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) == null && locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) == null ) {
+            	Intent a = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				 a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(a);
+            }
+        
+        } else {
+            // Provider not enabled, prompt user to enable it
+            Toast.makeText(getApplicationContext(), "NOT" ,Toast.LENGTH_LONG).show();
+            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(myIntent);
+        }
+    	
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, MENU_NAVIGATE,0,"Percurso"); 
-        menu.add(1, MENU_WIFI_GPS,0,"Get Localization"); 
+        menu.add(1, MENU_WIFI_GPS,0,"Refresh Localização"); 
     	return true;
     }
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		//menu.findItem(MENU_DIAL).setEnabled(!p.getPhoneNumber().equals(""));
-		//menu.findItem(MENU_SHOWONMAP).setEnabled(pharmacyIndex != -1);
-		 menu.findItem(MENU_WIFI_GPS).setEnabled(hadFirstFix);
 		return true;
 	}
 	
@@ -210,36 +218,23 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            switch (status) {
-            case LocationProvider.AVAILABLE:
-             //   txt.setText("Network location available again\n");
-                break;
-            case LocationProvider.OUT_OF_SERVICE:
-               // txt.setText ("Network location out of service\n");
-                break;
-            case LocationProvider.TEMPORARILY_UNAVAILABLE:
-               // txt.setText("Network location temporarily unavailable\n");
-                break;
-            }
+         
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-            txt.setText( "Network Provider Enabled\n");
+        
 
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-            txt.setText("Network Provider Disabled\n");
+         
         }
 
         @Override
         public void onLocationChanged(Location location) {
         
-           Log.d("lalalala",( "New network location: "
-                    + String.format("%9.6f", location.getLatitude()) + ", "
-                    + String.format("%9.6f", location.getLongitude()) + "\n"));
 
         }
 
@@ -255,8 +250,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	            startActivity(i);
 	        	break;
 	        case MENU_WIFI_GPS:
-	        	localization.requestUpdates();
-	       
+	        	checkLocation();
     			break;
 	    }
         	
