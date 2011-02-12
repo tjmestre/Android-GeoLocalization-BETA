@@ -2,4 +2,7 @@
 <resources>
     <string name="hello">Hello World, Sms!</string>
     <string name="app_name">smsAndroid</string>
+<string name="no_localization_active">Não tem nenhum sistema de localização activo.Quer activar agora?</string>
+<string name="yes">Sim</string>
+<string name="no">Nao</string>
 </resources>

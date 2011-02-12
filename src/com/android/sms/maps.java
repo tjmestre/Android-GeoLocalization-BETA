@@ -5,18 +5,31 @@ import java.util.Iterator;
 import java.util.List;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Handler.Callback;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -31,7 +44,7 @@ import com.jsambells.directions.RouteAbstract.RoutePathSmoothness;
 import com.jsambells.directions.google.DirectionsAPI;
 import com.jsambells.directions.google.DirectionsAPIRoute;
 
-public class maps extends MapActivity implements com.jsambells.directions.ParserAbstract.IDirectionsListener {
+public class maps extends MapActivity implements com.jsambells.directions.ParserAbstract.IDirectionsListener, OnPositionChangeListener {
 	
 	protected MapView map;
 	int maxLatitude;
@@ -42,19 +55,23 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	double vpadding = 0.2;	
 	Drawable drawable;
 	ItemOverlay itemizedOverlay;
-	private final static int MENU_DIAL = 0;
-	private final static int MENU_SHARE = 1;
+	Positioner localization;
 	private final static int MENU_NAVIGATE = 2;
-	private final static int MENU_COPY = 3;
-	private final static int MENU_SHOWONMAP = 4;
+	private final static int MENU_WIFI_GPS= 3;
 	List<GeoPoint> waypoints;
 	List<Overlay> mapOverlays;
-	
+	private boolean hadFirstFix;
+	private LocationManager locationManager;
+	TextView txt;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maps);
+        
+        txt = (TextView)findViewById(R.id.txtTexto);
+        
+        
         
         map = (MapView)findViewById(R.id.main);
      
@@ -65,14 +82,48 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
         drawable = this.getResources().getDrawable(R.drawable.icon);
         itemizedOverlay = new ItemOverlay(drawable);
         
+        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        
+        Criteria locationCritera = new Criteria();
+        locationCritera.setAccuracy(Criteria.ACCURACY_COARSE);
+        locationCritera.setAltitudeRequired(false);
+        locationCritera.setBearingRequired(false);
+        locationCritera.setCostAllowed(true);
+        locationCritera.setPowerRequirement(Criteria.NO_REQUIREMENT);
+
+        String providerName = locationManager.getBestProvider(locationCritera, true);
+
+        if (providerName != null && locationManager.isProviderEnabled(providerName)) {
+            Log.d("adf","ENABLE PROVIDER");
+            locationManager.requestLocationUpdates(providerName, 20000, 100, networkLocationListener);
+            
+            try{
+            GpsDataLocation.setFROMlatitude(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude());
+            GpsDataLocation.setFROMlongitude(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude());
+            
+            }catch (Exception e) {
+				// TODO: handle exception
+			}
+            
+        
+        } else {
+            // Provider not enabled, prompt user to enable it
+            Toast.makeText(getApplicationContext(), "NOT" ,Toast.LENGTH_LONG).show();
+            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(myIntent);
+        }
+        
 		// Find a route
 		waypoints = new ArrayList<GeoPoint>();
 		 double fromLat = 38.67928, fromLon = -9.31932, toLat = 38.61994, toLon = -9.11321;
 		 
 		//double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
 		
-		 int latitude = (int)(fromLat*1e6);
-		 int longitude = (int)(fromLon *1e6);
+		// int latitude = (int)(fromLat*1e6);
+		// int longitude = (int)(fromLon *1e6);
+		 
+		 int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
+		 int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
 		 int tolatitude = (int)(toLat * 1e6);
 		 int toLongetitude = (int)(toLon * 1e6);
     	// Lets go on a tower tour!
@@ -142,6 +193,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, MENU_NAVIGATE,0,"Percurso"); 
+        menu.add(1, MENU_WIFI_GPS,0,"Get Localization"); 
     	return true;
     }
 	
@@ -149,9 +201,49 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		//menu.findItem(MENU_DIAL).setEnabled(!p.getPhoneNumber().equals(""));
 		//menu.findItem(MENU_SHOWONMAP).setEnabled(pharmacyIndex != -1);
-		
+		 menu.findItem(MENU_WIFI_GPS).setEnabled(hadFirstFix);
 		return true;
 	}
+	
+	
+	private final LocationListener networkLocationListener = new LocationListener() {
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            switch (status) {
+            case LocationProvider.AVAILABLE:
+             //   txt.setText("Network location available again\n");
+                break;
+            case LocationProvider.OUT_OF_SERVICE:
+               // txt.setText ("Network location out of service\n");
+                break;
+            case LocationProvider.TEMPORARILY_UNAVAILABLE:
+               // txt.setText("Network location temporarily unavailable\n");
+                break;
+            }
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            txt.setText( "Network Provider Enabled\n");
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            txt.setText("Network Provider Disabled\n");
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+        
+           Log.d("lalalala",( "New network location: "
+                    + String.format("%9.6f", location.getLatitude()) + ", "
+                    + String.format("%9.6f", location.getLongitude()) + "\n"));
+
+        }
+
+    };
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -162,9 +254,32 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	        	Intent i = new Intent(getApplicationContext(), InstructionsList.class);
 	            startActivity(i);
 	        	break;
-	        }
+	        case MENU_WIFI_GPS:
+	        	localization.requestUpdates();
+	       
+    			break;
+	    }
+        	
         return true;
     }
+	
+	    @Override
+	    public void onResume() {
+	    	//localization.enableMyLocation();
+	    	//localization.registerNotification(this);
+	    	//localization.requestUpdates();
+	    	super.onResume();
+	    	
+	    //	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, networkLocationListener);
+	    	
+	    }
+	    
+	    @Override
+	    protected void onPause() {
+	    	// TODO Auto-generated method stub
+	    	super.onPause();
+	    
+	    }
 	
     @Override
 	protected boolean isRouteDisplayed() {
@@ -300,6 +415,12 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	        mapController.animateTo(new GeoPoint(
 	              (maxLatitude + minLatitude) / 2, (maxLongitude + minLongitude) / 2));
 	    }
+	}
+
+	@Override
+	public void onLocationChange(GeoPoint currentPos, float accuracy) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

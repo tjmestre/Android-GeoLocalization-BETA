@@ -9,7 +9,7 @@
  	android:id = "@+id/txtTexto"
   	android:layout_width="fill_parent"
     android:layout_height="wrap_content"
- 	android:text="Percurso"
+ 	android:text=""
  	/>
 <com.google.android.maps.MapView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -17,5 +17,5 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:clickable="true"
-    android:apiKey="0l9tPdVsGdWbb5ZaF09k1hX-02ch07hYtoKy6Hg"/>
+    android:apiKey="0l9tPdVsGdWbvTJf8RwC3tZVPPU6R80GmvuGjHw"/>
 </LinearLayout>
