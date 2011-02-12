@@ -36,7 +36,7 @@ import com.jsambells.directions.google.teste;
 public class InstructionsList extends Activity {
 	
 	ListView lv1;
-	TextView tv1;
+	ScrollTextView tv1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,38 +45,26 @@ public class InstructionsList extends Activity {
 		setContentView(R.layout.list_item);
 
 		lv1 = (ListView)findViewById(R.id.listview);
-		tv1 = (TextView)findViewById(R.id.tvLocation);
-		
-		final LinearLayout ll02 = (LinearLayout)findViewById(R.id.LinearLayout02);
-		TranslateAnimation anim = new TranslateAnimation(
-			      Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
-			      Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f
-			  );
-		
-		anim.setAnimationListener(new AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {
-			}
-			
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-			}
-			
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				ll02.setVisibility(View.GONE);
-			}
-		});
-		anim.setStartOffset(2000);
-		anim.setDuration(2000);
-		anim.setInterpolator(new AccelerateInterpolator(1));
-		ll02.startAnimation(anim);
+	//	tv1 = (TextView)findViewById(R.id.tvLocation);
+		tv1 = (ScrollTextView) findViewById(R.id.tvLocation);
+	
+		tv1.setRndDuration(10000);
 		
 		 List<DirectionsAPIStep> allPharm = teste.getInstructions();
-	
+		 
+		 
+		 runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					tv1.setText("Destino:  "+ DirectionsAPILeg.getEndAddress());
+			    	tv1.startScroll();
+			    
+				}
+			});
+		 
 		// DirectionsAPILeg a = new DirectionsAPILeg();
 	
-		 tv1.setText(DirectionsAPILeg.getEndAddress());
+		
 		 
 		 
 		 ArrayList<HashMap<String, String>> percursos = new ArrayList<HashMap<String, String>>();
@@ -98,7 +86,7 @@ public class InstructionsList extends Activity {
 			
 			  SimpleAdapter adapter = new SimpleAdapter(this, percursos, R.layout.list_row, from, to);
 	
-			          lv1.setAdapter(adapter);
+			 lv1.setAdapter(adapter);
 
 			
 			/*SimpleAdapter adapter = new SimpleAdapter(this, pharmacies, R.layout.list_item,

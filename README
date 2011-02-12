@@ -1,1 +1,8 @@
-Uma Aplicação
+#### Where is Bob? ##################
+
+Esta aplicação baseia-se em descobrir onde é que um individuo se encontra, a partir do envio de uma sms,
+e com a recepção automática das coordenadas gps do individuo a quem se enviou a mensagem.
+
+A aplicação tem que estar instalada nos dois dispositivos android com versão igual ou superior a 2.1
+
+ 

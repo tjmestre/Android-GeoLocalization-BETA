@@ -12,8 +12,9 @@
   		android:layout_width="fill_parent" 
   		>
 		<com.android.sms.ScrollTextView android:layout_width="fill_parent" 
-			android:layout_height="wrap_content" 
+			android:layout_height="30dip" 
 			android:id="@+id/tvLocation"
+			android:textSize="20dip"
 		    android:singleLine="true"/>
 	</LinearLayout>
 	<ListView android:layout_width="fill_parent" 
