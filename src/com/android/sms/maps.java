@@ -81,11 +81,11 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		 
 		//double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
 		
-		 int latitude = (int)(fromLat*1e6);
-		 int longitude = (int)(fromLon *1e6);
+		// int latitude = (int)(fromLat*1e6);
+		// int longitude = (int)(fromLon *1e6);
 		 
-		// int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
-		// int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
+		 int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
+		 int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
 		 int tolatitude = (int)(toLat * 1e6);
 		 int toLongetitude = (int)(toLon * 1e6);
     
@@ -158,7 +158,7 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
     	LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         
         
-        //Var procurar qual é que é o melhor provider de Network se Gps
+        //Verifica qual é que é o melhor provider se o Network se o Gps
         Criteria locationCritera = new Criteria();
         locationCritera.setAccuracy(Criteria.ACCURACY_FINE);
         locationCritera.setAltitudeRequired(false);

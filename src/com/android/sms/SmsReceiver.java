@@ -281,8 +281,8 @@ public class SmsReceiver extends BroadcastReceiver implements OnPositionChangeLi
 		
 
 		try {
-			sendSmsMessage(SmsReceiver.getPhoneNumber(), "gpsdata"+ GpsDataLocation.getTOlatitude() + ":"
-					+ GpsDataLocation.getTOlongitude());
+			sendSmsMessage(SmsReceiver.getPhoneNumber(), "gpsdata"+ SmsReceiver.getLatitude()+ ":"
+					+ SmsReceiver.getLongitude());
 
 			Toast.makeText(context, "SMS Sent", Toast.LENGTH_SHORT)
 					.show();
