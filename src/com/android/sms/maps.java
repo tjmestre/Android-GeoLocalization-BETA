@@ -46,7 +46,9 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 	double hpadding = 0.1;
 	double vpadding = 0.2;	
 	Drawable drawable;
+	Drawable me;
 	ItemOverlay itemizedOverlay;
+	ItemOverlay itemizedOverlay2;
 	Positioner localization;
 	private final static int MENU_NAVIGATE = 2;
 	private final static int MENU_WIFI_GPS= 3;
@@ -71,7 +73,8 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
         mapOverlays = map.getOverlays();
         
         drawable = this.getResources().getDrawable(R.drawable.icon);
-        itemizedOverlay = new ItemOverlay(drawable);
+        me = this.getResources().getDrawable(R.drawable.imagem);
+        itemizedOverlay = new ItemOverlay(me);
         
         checkLocation();
         
@@ -81,11 +84,11 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		 
 		//double fromLat = 38.67928, fromLon = -9.31932, toLat = GpsDataLocation.getTOlatitude(), toLon = GpsDataLocation.getTOlatitude();
 		
-		// int latitude = (int)(fromLat*1e6);
-		// int longitude = (int)(fromLon *1e6);
+		 int latitude = (int)(fromLat*1e6);
+		 int longitude = (int)(fromLon *1e6);
 		 
-		 int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
-		 int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
+		// int latitude = (int) (GpsDataLocation.getFROMlatitude() * 1e6);
+		 //int longitude = (int) (GpsDataLocation.getFROMlongitude() * 1e6);
 		 int tolatitude = (int)(toLat * 1e6);
 		 int toLongetitude = (int)(toLon * 1e6);
     
@@ -93,12 +96,16 @@ public class maps extends MapActivity implements com.jsambells.directions.Parser
 		
 		OverlayItem overlayitem = new OverlayItem(new GeoPoint(latitude,longitude), "", "");
 		itemizedOverlay.addOverlay(overlayitem);
-		
+		 mapOverlays.add(itemizedOverlay);
 		
 		waypoints.add(new GeoPoint(tolatitude,toLongetitude));
+		
+		
+		itemizedOverlay2 = new ItemOverlay(drawable);
 		OverlayItem overlayitem2 = new OverlayItem(new GeoPoint(tolatitude,toLongetitude), "", "");
-		itemizedOverlay.addOverlay(overlayitem2);
-		 mapOverlays.add(itemizedOverlay);
+		
+		itemizedOverlay2.addOverlay(overlayitem2);
+		 mapOverlays.add(itemizedOverlay2);
 		// Fim
 		//waypoints.add(new GeoPoint(37802341,-122405811));
 		

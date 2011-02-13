@@ -71,8 +71,8 @@ public class InstructionsList extends Activity {
 			for (DirectionsAPIStep p : allPharm) {
 				HashMap<String, String> percurso = new HashMap<String, String>();
 			
-				percurso.put("distance", p.getDistance());
-				percurso.put("duration", p.getDuration());
+				percurso.put("distance", "Distancia: " + p.getDistance());
+				percurso.put("duration", "Duracao: " +p.getDuration());
 				percurso.put("instructions", Html.fromHtml(p.getInstructions()).toString());
 			
 				//Log.d("dfedf",p.getInstructions());
